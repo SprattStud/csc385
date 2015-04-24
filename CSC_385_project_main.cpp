@@ -18,7 +18,7 @@
  login
  logout
  search
- password encryption - Branden is working on this
+ password encryption - Braden: Haven't Tested 100%, but test cases and adding a new user worked as intended
  
  
  MEDIA:
@@ -125,7 +125,7 @@ public:
         }
         
         cout << "Username: " << username << endl;
-        cout << "Password: " << decryptPassword(password) << endl;
+        cout << "Password: " << passwordEncryptDecrypt(password) << endl;
         cout << "Name: " << firstName << " " << lastName << endl;
         cout << "Email: " << email << endl;
         cout << "Address: " << address << endl;
@@ -135,7 +135,7 @@ public:
     }
     
     void displayCheckedOutInformation()
-   	{
+    {
         if (checkedOutMediaIds.size() > 0)
         {
             cout << "Checked out media: " << endl;
@@ -156,21 +156,16 @@ public:
     {
         return 0;
     }
-    
-    // password encryption would be nice to have:
-    
-    // encrypt user password
-    string encryptPassword(string password)
+    // when user first creates a password, password = passwordEncryptDecrypt(password), that will encrypt it
+    // the password will then be stored in an encrypted state, then call passwordEncryptDecrypt(password) to
+    // display the dcrypted password without changing the password within the 'database'
+    string passwordEncryptDecrypt(string passwordIn) 
     {
-        string encryptedPassword = password;
-        return encryptedPassword;
-    }
-    
-    // decrypt user password
-    string decryptPassword(string encryptedPassword)
-    {
-        string decryptedPassword = encryptedPassword;
-        return decryptedPassword;
+    	char key[3] = { 'K', 'C', 'Q' }; //Any chars will work
+    	string passwordOut = passwordIn;
+    	for (int i = 0; i < passwordIn.size(); i++)
+    		passwordOut[i] = passwordIn[i] ^ key[i % (sizeof(key) / sizeof(char))];
+  	return passwordOut;
     }
 };
 
@@ -316,10 +311,10 @@ public:
                 
 					getline(theFile, line);
 					theUser.username = line;
-                
+                		
 					getline(theFile, line);
-					theUser.password = line;
-                
+                			theUser.password = theUser.passwordEncryptDecrypt(line);
+                			
 					getline(theFile, line);
 					theUser.firstName = line;
                 
@@ -389,7 +384,7 @@ public:
                 theFile << theUser.userType << endl;
                 theFile << theUser.sessionID << endl;
                 theFile << theUser.username << endl;
-                theFile << theUser.password << endl;
+                theFile << theUser.passwordEncyotDecrypt(theUser.password); << endl;
                 theFile << theUser.firstName<< endl;
                 theFile << theUser.lastName<< endl;
                 theFile << theUser.email << endl;
@@ -947,7 +942,7 @@ User menu_user_add()
     getline(cin, editedUser.username);
     
     cout << "Password: ";
-    getline(cin, editedUser.password);
+    getline(cin, editedUser.passwordEncryptDecrypt(editedUser.password));
     
     cout << "First Name: ";
     getline(cin, editedUser.firstName);
@@ -1014,7 +1009,7 @@ User menu_user_edit(User theUser)
                 
             case '3':
                 cout << "Password: ";
-                getline(cin, editedUser.password);
+                getline(cin, editedUser.passwordEncryptDecrypt(editedUser.password));
                 break;
                 
             case '4':
@@ -1250,7 +1245,7 @@ int main()
     testUser.userType = 'a';
     testUser.sessionID = 55324;
     testUser.username = "nfrogley";
-    testUser.password = "password";
+    testUser.password = testUser.passwordEncryptDecrypt("password");
     testUser.firstName = "Nick";
     testUser.lastName = "Frogley";
     testUser.email = "nickfro@gmail.com";
